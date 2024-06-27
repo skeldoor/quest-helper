@@ -37,12 +37,12 @@ public class FakeItem extends ExtendedRuneliteObject
 	{
 		super(client, clientThread, worldPoint, model, animation);
 		objectType = RuneliteObjectTypes.ITEM;
-		nameColor = "FFA07A";
+		nameColor = "FF9040";
 	}
 
 	public void addTakeAction(RuneliteObjectManager runeliteObjectManager, RuneliteConfigSetter stateChange, String actionText)
 	{
-		setReplaceWalkActionText("Pick");
+		setReplaceWalkActionText("Take");
 		setReplaceWalkAction(menuEntry -> {
 			// Bend down and pick up the item
 			setPendingAction(() -> {

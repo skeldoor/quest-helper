@@ -29,6 +29,7 @@ import lombok.Getter;
 public enum PlayerQuests
 {
 
+	THE_BLACK_AXE("the_black_axe"),
 	COOKS_HELPER("cooks_helper"),
 	BIKE_SHEDDER("bike_shedder");
 

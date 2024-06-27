@@ -44,9 +44,14 @@ import com.questhelper.statemanagement.PlayerStateManager;
 import com.questhelper.runeliteobjects.RuneliteConfigSetter;
 import com.questhelper.runeliteobjects.extendedruneliteobjects.RuneliteObjectManager;
 import com.google.inject.Module;
+import com.questhelper.tools.QuestWidgets;
 import com.questhelper.util.worldmap.WorldMapAreaManager;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,16 +70,24 @@ import net.runelite.api.GameState;
 import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
+import net.runelite.api.ItemID;
 import net.runelite.api.MenuEntry;
+import net.runelite.api.ScriptID;
 import net.runelite.api.VarPlayer;
 import net.runelite.api.WorldType;
+import net.runelite.api.events.BeforeMenuRender;
+import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuEntryAdded;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.widgets.JavaScriptCallback;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
@@ -390,10 +403,15 @@ public class QuestHelperPlugin extends Plugin
 				questOverlayManager.addDebugOverlay();
 			}
 		}
-		else if (developerMode && commandExecuted.getCommand().equals("reset-cooks-helper"))
+		else if (commandExecuted.getCommand().equals("reset-cooks-helper"))
 		{
 			String step = (String) (Arrays.stream(commandExecuted.getArguments()).toArray()[0]);
 			new RuneliteConfigSetter(configManager, QuestHelperQuest.COOKS_HELPER.getPlayerQuests().getConfigValue(), step).setConfigValue();
+		}
+		else if (commandExecuted.getCommand().equals("reset-black-axe"))
+		{
+			String step = (String) (Arrays.stream(commandExecuted.getArguments()).toArray()[0]);
+			new RuneliteConfigSetter(configManager, QuestHelperQuest.THE_BLACK_AXE.getPlayerQuests().getConfigValue(), step).setConfigValue();
 		}
 		else if (developerMode && commandExecuted.getCommand().equals("qh-inv"))
 		{
@@ -470,8 +488,34 @@ public class QuestHelperPlugin extends Plugin
 	}
 
 	@Subscribe
+	public void onBeforeRender(BeforeRender beforeRender)
+	{
+		try {
+			client.getWidget(9764864).getDynamicChildren()[0].setModelZoom(400);
+			client.getWidget(9764864).getDynamicChildren()[0].setItemId(ItemID.BLACK_BATTLEAXE);
+			client.getWidget(9764864).getDynamicChildren()[0].setName("<col=FF9040>Black thrownaxe");
+		} catch (Exception ignored) {
+		}
+	}
+
+	@Subscribe
+	public void onMenuOptionClicked(MenuOptionClicked menuOptionClicked){
+		log.warn(menuOptionClicked.getMenuOption());
+		log.warn(menuOptionClicked.getMenuTarget());
+		if (menuOptionClicked.getMenuOption().equals("Wield") && menuOptionClicked.getMenuTarget().contains("Black") && menuOptionClicked.getMenuTarget().contains("thrownaxe")){
+			runeliteObjectManager.createChatboxMessage("Are you mad? This is the only black thrownaxe in the game, it's too precious to equip! What if you were to drop it?");
+		}
+	}
+
+	@Subscribe
 	public void onChatMessage(ChatMessage chatMessage)
 	{
+		log.warn(chatMessage.getMessage());
+		if (chatMessage.getMessage().contains("A finely balanced throwing axe")){
+			log.warn("setting");
+			chatMessage.setMessage("A black axe that can be used in battle and you could throw it, if you tried hard enough.");
+			chatMessage.getMessageNode().setValue("A black axe that can be used in battle and you could throw it, if you tried hard enough.");
+		}
 		if (config.showFan() && chatMessage.getType() == ChatMessageType.GAMEMESSAGE)
 		{
 			if (chatMessage.getMessage().contains("Congratulations! Quest complete!") ||
