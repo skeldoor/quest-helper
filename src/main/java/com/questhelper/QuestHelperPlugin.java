@@ -496,6 +496,18 @@ public class QuestHelperPlugin extends Plugin
 			client.getWidget(9764864).getDynamicChildren()[0].setName("<col=FF9040>Black thrownaxe");
 		} catch (Exception ignored) {
 		}
+
+		try {
+			if (client.getWidget(10616869).getDynamicChildren()[3].getText().contains("Thurgo leaves a lump of Black metal slag outside the nearby furnace.")){
+				client.getWidget(10616869).getDynamicChildren()[3].setRelativeX(72);
+				client.getWidget(10616869).getDynamicChildren()[2].setRelativeX(72);
+			}
+		} catch (Exception ignored) {
+		}
+
+
+
+
 	}
 
 	@Subscribe
