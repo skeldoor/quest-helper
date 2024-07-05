@@ -46,9 +46,9 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 
 	private FakeNpc ben, thurgo;
 
-	private FakeItem redberryBush;
+	private FakeObject redberryBush;
 
-	private PlayerQuestStateRequirement talkedToBen, talkedToThurgo, displayBlackLump, pickedBlackLump;
+	private PlayerQuestStateRequirement talkedToBen, talkedToThurgo, plantedRedberryBush, displayRedberryBush;
 
 
 	/*
@@ -96,7 +96,7 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		questSteps.addStep(new Conditions(req.getNewState(3), nearBen), returnToBen);
 		questSteps.addStep(req.getNewState(3), standNextToBen);
 		questSteps.addStep(req.getNewState(2), grabBlackOre);
-		questSteps.addStep(new Conditions(req.getNewState(1), nearSmith), talkToThurgo);
+		questSteps.addStep(new Conditions(req.getNewState(1), nearThurgo), talkToThurgo);
 		questSteps.addStep(req.getNewState(1), standNextToThurgo);
 		questSteps.addStep(nearBen, talkToBen);
 
@@ -108,13 +108,6 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 	@Override
 	protected void setupRequirements()
 	{
-		// NPCs should persist through quest steps unless actively removed? Dialog should be conditional on step (sometimes)
-		// Hide/show NPCs/the runelite character when NPCs go on it/you go over it
-		// Handle cancelling dialog boxes (even just moving a tile away should remove for example)
-		// Properly handle removing NPC from screen when changing floors and such
-		// Work out how to do proper priority on the npcs being clicked
-		// Wandering NPCs?
-		// Objects + items (basically same as NPCs)
 		talkedToBen = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 1, Operation.GREATER_EQUAL);
 		talkedToThurgo = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 2, Operation.GREATER_EQUAL);
 		plantedRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3, Operation.GREATER_EQUAL);
@@ -161,12 +154,6 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		RuneliteObjectDialogStep dontMeetReqDialog = ben.createDialogStepForNpc("Come talk to me once you've helped my cousin out.");
 		ben.addDialogTree(null, dontMeetReqDialog);
 
-//		RuneliteDialogStep dialog = cooksCousin.createDialogStepForNpc("Hey, you there! You helped out my cousin before right?");
-//		dialog.addContinueDialog(new RunelitePlayerDialogStep(client, "I have yeah, what's wrong? Does he need some more eggs? Maybe I can just get him a chicken instead?"))
-//			.addContinueDialog(cooksCousin.createDialogStepForNpc("No no, nothing like that. Have you seen that terribly dressed person outside the courtyard?", FaceAnimationIDs.FRIENDLY_QUESTIONING))
-//			.addContinueDialog(cooksCousin.createDialogStepForNpc("I don't know who they are, but can you please get them to move along please?", FaceAnimationIDs.FRIENDLY_QUESTIONING))
-//			.addContinueDialog(cooksCousin.createDialogStepForNpc("They seem to be attracting more troublemakers...."))
-//			.addContinueDialog(new RunelitePlayerDialogStep(client, "You mean Hatius? If so it'd be my pleasure.").setStateProgression(talkedToCooksCousin.getSetter()));
 		RuneliteDialogStep dialog = ben.createDialogStepForNpc("Hello, I'm Bob's brother Ben. How can I help you?", FaceAnimationIDs.FRIENDLY);
 		dialog.addContinueDialog(new RunelitePlayerDialogStep(client, "I'm looking for a new axe but I'm having trouble finding exactly what I need.", FaceAnimationIDs.QUIZZICAL))
 			.addContinueDialog(ben.createDialogStepForNpc("Well you're in the right place for axes! What kind of axe do you need?", FaceAnimationIDs.FRIENDLY_QUESTIONING))
@@ -264,32 +251,15 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 	private void setupRedberryBush()
 	{
 		// 23628
-		redberryBush = runeliteObjectManager.createFakeItem(this.toString(), new int[]{ 7826,7813 }, new WorldPoint(3227, 3255, 0), -1);
-		//blacklump.setScaledModel(new int[]{7826,7813}, 150,20,150);
-		redberryBush.setName("Black lump");
-		redberryBush.setExamine("A lump of black metal, you think? It's hard to tell, it's so dark.");
+		//redberryBush = runeliteObjectManager.createFakeItem(this.toString(), new int[]{ 7826,7813 }, new WorldPoint(2998, 3144, 0), -1);
+		redberryBush = runeliteObjectManager.createFakeObject(this.toString(), new int[]{ 7826,7813}, new WorldPoint(2998, 3144, 0), -1);
+			//blacklump.setScaledModel(new int[]{7826,7813}, 150,20,150);
+		redberryBush.setName("Redberry bush");
+		redberryBush.setExamine("Thurgo's redberry bush is full of tasty berries.");
 		redberryBush.addExamineAction(runeliteObjectManager);
-		redberryBush.setDisplayRequirement(displayBlackLump);
-		redberryBush.addTakeAction(runeliteObjectManager, new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "3"), "You pick up the black metal lump.");
-		redberryBush.setObjectToRemove(new ReplacedObject(NullObjectID.NULL_37348, new WorldPoint(3231, 3235, 0)));
-	}
-
-	private void setupSuspiciousMarkings()
-	{
-		WorldPoint[] positions = {
-			new WorldPoint(3200, 3150, 0),
-			new WorldPoint(3199, 3150, 0),
-			new WorldPoint(3198, 3150, 0)
-		};
-
-		for (WorldPoint position : positions){
-			FakeObject suspiciousMarkings = runeliteObjectManager.createFakeObject(this.toString(), new int[]{ 37348 }, position, -1);
-			suspiciousMarkings.setName("Suspicious Markings");
-			suspiciousMarkings.setExamine("Some suspicious markings on the ground.");
-			suspiciousMarkings.addExamineAction(runeliteObjectManager);
-			suspiciousMarkings.setObjectToRemove(new ReplacedObject(NullObjectID.NULL_37348, position));
-			suspiciousMarkings.setDisplayRequirement(displayBlackLump);
-		}
+		redberryBush.setDisplayRequirement(displayRedberryBush);
+		//redberryBush.addTakeAction(runeliteObjectManager, new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "3"), "You pick up the black metal lump.");
+		//redberryBush.setObjectToRemove(new ReplacedObject(NullObjectID.NULL_37348, new WorldPoint(3231, 3235, 0)));
 	}
 
 	private void createRuneliteObjects()
@@ -297,7 +267,6 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		setupBobsBrother();
 		setupThurgo();
 		setupRedberryBush();
-		setupSuspiciousMarkings();
 	}
 
 	@Override
