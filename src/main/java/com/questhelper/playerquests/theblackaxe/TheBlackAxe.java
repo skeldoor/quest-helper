@@ -42,11 +42,11 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 
 	private DetailedQuestStep standNextToBen, standNextToThurgo, standNextToBen2;
 
-	private Requirement nearBen, nearSmith;
+	private Requirement nearBen, nearThurgo;
 
 	private FakeNpc ben, thurgo;
 
-	private FakeItem blacklump;
+	private FakeItem redberryBush;
 
 	private PlayerQuestStateRequirement talkedToBen, talkedToThurgo, displayBlackLump, pickedBlackLump;
 
@@ -117,10 +117,13 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		// Objects + items (basically same as NPCs)
 		talkedToBen = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 1, Operation.GREATER_EQUAL);
 		talkedToThurgo = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 2, Operation.GREATER_EQUAL);
-		displayBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 2);
-		pickedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3, Operation.GREATER_EQUAL);
+		plantedRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3, Operation.GREATER_EQUAL);
+		displayRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3);
+		retrievedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4, Operation.GREATER_EQUAL);
+		retrievedBlackThrownaxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 5, Operation.GREATER_EQUAL);
+		handedInBlackAxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 6, Operation.GREATER_EQUAL);
 		nearBen = new ZoneRequirement(new Zone(new WorldPoint(3206, 3212, 0), new WorldPoint(3212, 3218, 0)));
-		nearSmith = new ZoneRequirement(new Zone(new WorldPoint(3232, 3212, 0), new WorldPoint(3238, 3218, 0)));
+		nearThurgo = new ZoneRequirement(new Zone(new WorldPoint(3230, 3210, 0), new WorldPoint(3242, 3220, 0)));
 	}
 
 	public void setupSteps()
@@ -136,7 +139,7 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		standNextToThurgo = new TileStep(this, new WorldPoint(3236, 3215, 0), "Talk to Smith at the Lumbridge Furnace. 2");
 		talkToThurgo.addSubSteps(standNextToThurgo);
 
-		grabBlackOre = new RuneliteObjectStep(this, blacklump, "Get the black lump to the north of Smith, outside the Lumbridge Furnace.");
+		grabBlackOre = new RuneliteObjectStep(this, redberryBush, "Get the black lump to the north of Smith, outside the Lumbridge Furnace.");
 
 		returnToBen = new RuneliteObjectStep(this, ben, "Return to Ben at Bob's Brilliant Axes.");
 		standNextToBen2 = new DetailedQuestStep(this, new WorldPoint(3228, 3204, 0), "Return to Ben at Bob's Brilliant Axes. 2");
@@ -258,17 +261,17 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		thurgo.addDialogTree(pickedBlackLump, hopleezGiveCabbageDialog);
 	}
 
-	private void setupBlackLump()
+	private void setupRedberryBush()
 	{
-		// 48958
-		blacklump = runeliteObjectManager.createFakeItem(this.toString(), new int[]{ 48958 }, new WorldPoint(3227, 3255, 0), -1);
-		blacklump.setScaledModel(new int[]{48958}, 150,20,150);
-		blacklump.setName("Black lump");
-		blacklump.setExamine("A lump of black metal, you think? It's hard to tell, it's so dark.");
-		blacklump.addExamineAction(runeliteObjectManager);
-		blacklump.setDisplayRequirement(displayBlackLump);
-		blacklump.addTakeAction(runeliteObjectManager, new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "3"), "You pick up the black metal lump.");
-		blacklump.setObjectToRemove(new ReplacedObject(NullObjectID.NULL_37348, new WorldPoint(3231, 3235, 0)));
+		// 23628
+		redberryBush = runeliteObjectManager.createFakeItem(this.toString(), new int[]{ 7826,7813 }, new WorldPoint(3227, 3255, 0), -1);
+		//blacklump.setScaledModel(new int[]{7826,7813}, 150,20,150);
+		redberryBush.setName("Black lump");
+		redberryBush.setExamine("A lump of black metal, you think? It's hard to tell, it's so dark.");
+		redberryBush.addExamineAction(runeliteObjectManager);
+		redberryBush.setDisplayRequirement(displayBlackLump);
+		redberryBush.addTakeAction(runeliteObjectManager, new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "3"), "You pick up the black metal lump.");
+		redberryBush.setObjectToRemove(new ReplacedObject(NullObjectID.NULL_37348, new WorldPoint(3231, 3235, 0)));
 	}
 
 	private void setupSuspiciousMarkings()
@@ -293,7 +296,7 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 	{
 		setupBobsBrother();
 		setupThurgo();
-		setupBlackLump();
+		setupRedberryBush();
 		setupSuspiciousMarkings();
 	}
 
