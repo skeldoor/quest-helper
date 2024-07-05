@@ -51,6 +51,27 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 	private PlayerQuestStateRequirement talkedToBen, talkedToThurgo, displayBlackLump, pickedBlackLump;
 
 
+	/*
+	Speak to Ben, the brother of Bob of Bob's Brilliant Axes.
+	Speak to Thurgo at the Lumbridge Furnace.
+	Thurgo will give you a black lump in return for a redberry bush planted in his garden.
+	"I don't know what Black is, but I thought I could sweeten the deal with some redberry pie."
+	When talking about redberry pies, Thurgo mentions he wishes there was an infinite supply of redberries.
+	"Oh I love redberries, sometimes I wish I had an infinite supply!"
+	I tell him "I can help with that."
+	"Oh yeah, how are you going to do that? Redberries don't grow on trees you know."
+	"Well funnily enough, they kinda do. I could plant a redberry bush in your garden if you'd like."
+	"picks axes mate, I'd love that! In return, I'll give you some raw Black metal for your axe."
+	Plant a redberry bush in Thurgo's garden.
+	Return to Thurgo and he will give you a black lump.
+	Return to Ben with the black lump.
+	Ben will craft you a black thrownaxe.
+	The axe is unusable.
+	Your character decides to return the axe to Ben who frames it in his shop.
+	"Sorry to be a pain Ben, but I can't bring myself to use this axe. It's too precious."
+	"Ah, don't worry about it mate. I'll hang it up in the shop, it'll be a great conversation piece."
+	"Thanks Ben, I'd like that."
+	 */
 
 
 
