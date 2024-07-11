@@ -112,31 +112,31 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		talkedToThurgo = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 2, Operation.GREATER_EQUAL);
 		plantedRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3, Operation.GREATER_EQUAL);
 		displayRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3);
-		retrievedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4, Operation.GREATER_EQUAL);
-		retrievedBlackThrownaxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 5, Operation.GREATER_EQUAL);
-		handedInBlackAxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 6, Operation.GREATER_EQUAL);
+//		retrievedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4, Operation.GREATER_EQUAL);
+//		retrievedBlackThrownaxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 5, Operation.GREATER_EQUAL);
+//		handedInBlackAxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 6, Operation.GREATER_EQUAL);
 		nearBen = new ZoneRequirement(new Zone(new WorldPoint(3206, 3212, 0), new WorldPoint(3212, 3218, 0)));
 		nearThurgo = new ZoneRequirement(new Zone(new WorldPoint(3230, 3210, 0), new WorldPoint(3242, 3220, 0)));
 	}
 
 	public void setupSteps()
 	{
-		// TODO: Need a way to define the groupID of a runelite object to be a quest step without it being stuck
-		// Add each step's groupID as a sub-group
-
-		talkToBen = new RuneliteObjectStep(this, ben, "Talk to the brother of Bob of Bob's Brilliant Axes.");
-		standNextToBen = new TileStep(this, new WorldPoint(3228, 3204, 0), "Start the Quest by talking to Ben, the brother of Bob of Bob's Brilliant Axes.");
-		talkToBen.addSubSteps(standNextToBen);
-
-		talkToThurgo = new RuneliteObjectStep(this, thurgo, "Talk to Thurgo at the Lumbridge Furnace.");
-		standNextToThurgo = new TileStep(this, new WorldPoint(3236, 3215, 0), "Talk to Smith at the Lumbridge Furnace. 2");
-		talkToThurgo.addSubSteps(standNextToThurgo);
-
-		grabBlackOre = new RuneliteObjectStep(this, redberryBush, "Get the black lump to the north of Smith, outside the Lumbridge Furnace.");
-
-		returnToBen = new RuneliteObjectStep(this, ben, "Return to Ben at Bob's Brilliant Axes.");
-		standNextToBen2 = new DetailedQuestStep(this, new WorldPoint(3228, 3204, 0), "Return to Ben at Bob's Brilliant Axes. 2");
-		returnToBen.addSubSteps(standNextToBen2);
+//		// TODO: Need a way to define the groupID of a runelite object to be a quest step without it being stuck
+//		// Add each step's groupID as a sub-group
+//
+//		talkToBen = new RuneliteObjectStep(this, ben, "Talk to the brother of Bob of Bob's Brilliant Axes.");
+//		standNextToBen = new TileStep(this, new WorldPoint(3228, 3204, 0), "Start the Quest by talking to Ben, the brother of Bob of Bob's Brilliant Axes.");
+//		talkToBen.addSubSteps(standNextToBen);
+//
+//		talkToThurgo = new RuneliteObjectStep(this, thurgo, "Talk to Thurgo at the Lumbridge Furnace.");
+//		standNextToThurgo = new TileStep(this, new WorldPoint(3236, 3215, 0), "Talk to Smith at the Lumbridge Furnace. 2");
+//		talkToThurgo.addSubSteps(standNextToThurgo);
+//
+//		grabBlackOre = new RuneliteObjectStep(this, redberryBush, "Get the black lump to the north of Smith, outside the Lumbridge Furnace.");
+//
+//		returnToBen = new RuneliteObjectStep(this, ben, "Return to Ben at Bob's Brilliant Axes.");
+//		standNextToBen2 = new DetailedQuestStep(this, new WorldPoint(3228, 3204, 0), "Return to Ben at Bob's Brilliant Axes. 2");
+//		returnToBen.addSubSteps(standNextToBen2);
 	}
 
 	private void setupBobsBrother()
