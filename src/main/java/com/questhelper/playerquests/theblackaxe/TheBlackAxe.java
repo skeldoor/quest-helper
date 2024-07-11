@@ -42,7 +42,7 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 
 	private DetailedQuestStep standNextToBen, standNextToThurgo, standNextToBen2;
 
-	private Requirement nearBen, nearThurgo;
+	private Requirement nearBen, nearThurgo, nearRedberryBushPlantZone;
 
 	private FakeNpc ben, thurgo;
 
@@ -95,7 +95,7 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		questSteps.addStep(req.getNewState(4), new DetailedQuestStep(this, "Quest completed!"));
 		questSteps.addStep(new Conditions(req.getNewState(3), nearBen), returnToBen);
 		questSteps.addStep(req.getNewState(3), standNextToBen);
-		questSteps.addStep(req.getNewState(2), grabBlackOre);
+		questSteps.addStep(req.getNewState(2), nearRedberryBushPlantZone);
 		questSteps.addStep(new Conditions(req.getNewState(1), nearThurgo), talkToThurgo);
 		questSteps.addStep(req.getNewState(1), standNextToThurgo);
 		questSteps.addStep(nearBen, talkToBen);
@@ -112,11 +112,13 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		talkedToThurgo = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 2, Operation.GREATER_EQUAL);
 		plantedRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3, Operation.GREATER_EQUAL);
 		displayRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3);
-//		retrievedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4, Operation.GREATER_EQUAL);
-//		retrievedBlackThrownaxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 5, Operation.GREATER_EQUAL);
-//		handedInBlackAxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 6, Operation.GREATER_EQUAL);
+		toldThurgoAboutRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4, Operation.GREATER_EQUAL);
+		retrievedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 5, Operation.GREATER_EQUAL);
+		retrievedBlackThrownaxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 6, Operation.GREATER_EQUAL);
+		handedInBlackAxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 7, Operation.GREATER_EQUAL);
 		nearBen = new ZoneRequirement(new Zone(new WorldPoint(3206, 3212, 0), new WorldPoint(3212, 3218, 0)));
 		nearThurgo = new ZoneRequirement(new Zone(new WorldPoint(3230, 3210, 0), new WorldPoint(3242, 3220, 0)));
+		nearRedberryBushPlantZone = new ZoneRequirement(new Zone(new WorldPoint(2998, 3144, 0), new WorldPoint(2998, 3144, 0)));
 	}
 
 	public void setupSteps()
