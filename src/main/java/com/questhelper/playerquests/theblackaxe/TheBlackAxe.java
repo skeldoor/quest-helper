@@ -26,6 +26,7 @@ import com.questhelper.steps.QuestStep;
 import com.questhelper.steps.TileStep;
 import com.questhelper.steps.playermadesteps.RuneliteObjectStep;
 import net.runelite.api.ItemID;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.ModelData;
 import net.runelite.api.NpcID;
 import net.runelite.api.NullObjectID;
@@ -35,10 +36,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TheBlackAxe extends PlayerMadeQuestHelper
 {
-	private RuneliteObjectStep talkToBen, talkToThurgo, grabBlackOre, returnToBen;
+	private RuneliteObjectStep talkToBen, talkToThurgo, plantRedberryBush, talkToThurgo2, grabBlackOre, talkToBen2, talkToBen3;
 
 	private DetailedQuestStep standNextToBen, standNextToThurgo, standNextToBen2;
 
@@ -46,10 +48,31 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 
 	private FakeNpc ben, thurgo;
 
+	private FakeObject redberryBushPatch;
 	private FakeObject redberryBush;
 
-	private PlayerQuestStateRequirement talkedToBen, talkedToThurgo, plantedRedberryBush, displayRedberryBush;
+	private FakeItem blackLump;
 
+	private PlayerQuestStateRequirement
+		talkedToBen, talkedToThurgo,
+		plantedRedberryBush, displayRedberryBush,
+		talkedToThurgo2, displayBlackLump, 
+		handedInBlackLump,
+		retrievedBlackLump, retrievedBlackThrownaxe,
+		handedInBlackAxe;
+	
+
+	private RuneliteObjectStep talkToCook, talkToHopleez, grabCabbage, returnToHopleez;
+
+	private DetailedQuestStep standNextToCook, standNextToHopleez, standNextToHopleez2;
+
+	private Requirement nearCook, nearHopleez;
+
+	private FakeNpc cooksCousin, hopleez;
+
+	private FakeItem cabbage;
+
+	private PlayerQuestStateRequirement talkedToCooksCousin, talkedToHopleez, displayCabbage, pickedCabbage;
 
 	/*
 	Speak to Ben, the brother of Bob of Bob's Brilliant Axes.
@@ -73,9 +96,6 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 	"Thanks Ben, I'd like that."
 	 */
 
-
-
-
 	@Override
 	public QuestStep loadStep()
 	{
@@ -92,15 +112,16 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		PlayerQuestStateRequirement req = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 0);
 
 		ConditionalStep questSteps = new ConditionalStep(this, standNextToBen);
-		questSteps.addStep(req.getNewState(4), new DetailedQuestStep(this, "Quest completed!"));
-		questSteps.addStep(new Conditions(req.getNewState(3), nearBen), returnToBen);
-		questSteps.addStep(req.getNewState(3), standNextToBen);
-		questSteps.addStep(req.getNewState(2), grabBlackOre);
-		questSteps.addStep(new Conditions(req.getNewState(1), nearThurgo), talkToThurgo);
-		questSteps.addStep(req.getNewState(1), standNextToThurgo);
+//		questSteps.addStep(req.getNewState(7), new DetailedQuestStep(this, "Quest completed!"));
+//		questSteps.addStep(req.getNewState(6), talkToBen3);
+//		questSteps.addStep(req.getNewState(5), talkToBen2);
+//		questSteps.addStep(req.getNewState(4), grabBlackOre);
+//		questSteps.addStep(req.getNewState(3), talkToThurgo2);
+//		questSteps.addStep(req.getNewState(2), plantRedberryBush);
+//		questSteps.addStep(nearThurgo, talkToThurgo);
 		questSteps.addStep(nearBen, talkToBen);
 
-		// Don't save to config until helper closes/client closing?
+
 
 		return questSteps;
 	}
@@ -112,9 +133,12 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		talkedToThurgo = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 2, Operation.GREATER_EQUAL);
 		plantedRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3, Operation.GREATER_EQUAL);
 		displayRedberryBush = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 3);
-//		retrievedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4, Operation.GREATER_EQUAL);
-//		retrievedBlackThrownaxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 5, Operation.GREATER_EQUAL);
-//		handedInBlackAxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 6, Operation.GREATER_EQUAL);
+		talkedToThurgo2 = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4, Operation.GREATER_EQUAL);
+		displayBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 4);
+		retrievedBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 5, Operation.GREATER_EQUAL);
+		handedInBlackLump = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 6, Operation.GREATER_EQUAL);
+		retrievedBlackThrownaxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 7, Operation.GREATER_EQUAL);
+		handedInBlackAxe = new PlayerQuestStateRequirement(configManager, getQuest().getPlayerQuests(), 8, Operation.GREATER_EQUAL);
 		nearBen = new ZoneRequirement(new Zone(new WorldPoint(3206, 3212, 0), new WorldPoint(3212, 3218, 0)));
 		nearThurgo = new ZoneRequirement(new Zone(new WorldPoint(3230, 3210, 0), new WorldPoint(3242, 3220, 0)));
 	}
@@ -124,9 +148,9 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 //		// TODO: Need a way to define the groupID of a runelite object to be a quest step without it being stuck
 //		// Add each step's groupID as a sub-group
 //
-//		talkToBen = new RuneliteObjectStep(this, ben, "Talk to the brother of Bob of Bob's Brilliant Axes.");
-//		standNextToBen = new TileStep(this, new WorldPoint(3228, 3204, 0), "Start the Quest by talking to Ben, the brother of Bob of Bob's Brilliant Axes.");
-//		talkToBen.addSubSteps(standNextToBen);
+		talkToBen = new RuneliteObjectStep(this, ben, "Talk to the brother of Bob of Bob's Brilliant Axes.");
+		standNextToBen = new TileStep(this, new WorldPoint(3228, 3204, 0), "Start the Quest by talking to Ben, the brother of Bob of Bob's Brilliant Axes.");
+		talkToBen.addSubSteps(standNextToBen);
 //
 //		talkToThurgo = new RuneliteObjectStep(this, thurgo, "Talk to Thurgo at the Lumbridge Furnace.");
 //		standNextToThurgo = new TileStep(this, new WorldPoint(3236, 3215, 0), "Talk to Smith at the Lumbridge Furnace. 2");
@@ -141,7 +165,6 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 
 	private void setupBobsBrother()
 	{
-		// Cook's Cousin
 		ben = runeliteObjectManager.createFakeNpc(this.toString(), client.getNpcDefinition(NpcID.DOCK_WORKER).getModels(), new WorldPoint(3228, 3204, 0), 808);
 		ben.setName("Ben");
 		ben.setFace(NpcID.DOCK_WORKER);
@@ -151,11 +174,14 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 
 		QuestRequirement hasDoneCooksAssistant = new QuestRequirement(QuestHelperQuest.COOKS_ASSISTANT, QuestState.FINISHED);
 
-		RuneliteObjectDialogStep dontMeetReqDialog = ben.createDialogStepForNpc("Come talk to me once you've helped my cousin out.");
-		ben.addDialogTree(null, dontMeetReqDialog);
+		// Dialog
+		RuneliteDialogStep benDialogPreQuest = ben.createDialogStepForNpc("Hop noob.");
+		benDialogPreQuest.addContinueDialog(new RunelitePlayerDialogStep(client, "What? Also, what are you wearing?"))
+			.addContinueDialog(ben.createDialogStepForNpc("Hop NOOB."));
+		ben.addDialogTree(null, benDialogPreQuest);
 
-		RuneliteDialogStep dialog = ben.createDialogStepForNpc("Hello, I'm Bob's brother Ben. How can I help you?", FaceAnimationIDs.FRIENDLY);
-		dialog.addContinueDialog(new RunelitePlayerDialogStep(client, "I'm looking for a new axe but I'm having trouble finding exactly what I need.", FaceAnimationIDs.QUIZZICAL))
+		RuneliteDialogStep BenDialog = ben.createDialogStepForNpc("Hello, I'm Bob's brother Ben. How can I help you?", FaceAnimationIDs.FRIENDLY);
+		BenDialog.addContinueDialog(new RunelitePlayerDialogStep(client, "I'm looking for a new axe but I'm having trouble finding exactly what I need.", FaceAnimationIDs.QUIZZICAL))
 			.addContinueDialog(ben.createDialogStepForNpc("Well you're in the right place for axes! What kind of axe do you need?", FaceAnimationIDs.FRIENDLY_QUESTIONING))
 			.addContinueDialog(new RunelitePlayerDialogStep(client, "I'm looking to acquire a rare type of axe that no one's ever seen before."))
 			.addContinueDialog(ben.createDialogStepForNpc("Okay that's vague, let's start at the basics. What do you want to use this axe for?", FaceAnimationIDs.QUESTIONING))
@@ -171,8 +197,47 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 			.addContinueDialog(ben.createDialogStepForNpc("Are you having me on?", FaceAnimationIDs.ANNOYED_2))
 			.addContinueDialog(new RunelitePlayerDialogStep(client, "Uh...", FaceAnimationIDs.WORRIED_SAD))
 			.addContinueDialog(ben.createDialogStepForNpc("Right, look pal. If you can bring me a lump of this \"Black metal\" then sure, I'll make you your axe.", FaceAnimationIDs.ANNOYED_2))
-			.addContinueDialog(ben.createDialogStepForNpc("Maybe find a Master Smith to help you. Until then, please stay away from this shop.", FaceAnimationIDs.ANNOYED_2).setStateProgression(talkedToBen.getSetter()));
-		ben.addDialogTree(hasDoneCooksAssistant, dialog);
+			.addContinueDialog(ben.createDialogStepForNpc("Maybe find a Master Smith to help you. I hear there's a new guy, a short little fella who's good with metals over at the local furnace.", FaceAnimationIDs.QUIZZICAL))
+			.addContinueDialog(ben.createDialogStepForNpc("Until then, please stay away from this shop.", FaceAnimationIDs.ANNOYED_2).setStateProgression(talkedToBen.getSetter()));
+		ben.addDialogTree(hasDoneCooksAssistant, BenDialog);
+
+
+
+		RuneliteDialogStep BenDialog2 = ben.createDialogStepForNpc("Hey, not you again. I thought I told you to stay away.", FaceAnimationIDs.ANNOYED_2);
+		BenDialog2.addContinueDialog(new RunelitePlayerDialogStep(client, "You said not to return until I found you a lump of Black metal to work with.", FaceAnimationIDs.CHATTY))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "I spoke with the Master Smith you recommended and well, here I am, ready for my axe.", FaceAnimationIDs.FRIENDLY))
+			.addContinueDialog(ben.createDialogStepForNpc("Wow, I didn't expect you to ever return, never mind so fast. Let's have a look then.", FaceAnimationIDs.QUESTIONING))
+			.addContinueDialog(new RuneliteDialogStep("", "You hand the lump of black metal to Ben.", -1, -1)).setStateProgression(handedInBlackLump.getSetter())
+			.addContinueDialog(ben.createDialogStepForNpc("Ah yeah, this is some classic black metal alright, seen plenty of this stuff. Hard to work with.", FaceAnimationIDs.SHORT_LAUGH))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "You said you had no idea what Black metal was.", FaceAnimationIDs.BIG_LAUGH))
+			.addContinueDialog(ben.createDialogStepForNpc("Right, listen here you little...", FaceAnimationIDs.ANNOYED_2))
+			.addContinueDialog(new RuneliteDialogStep("", "Ben stomps away muttering under his breath...", -1, -1))
+			.addContinueDialog(new RuneliteDialogStep("", "...returning a short while later carrying a Black thrownaxe.", -1, -1))
+			.addContinueDialog(ben.createDialogStepForNpc("Here you go mate, one Black thrownaxe. Bespoke. One of a kind.", FaceAnimationIDs.CHATTY))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "Ben, this is perfect. Thank you so much.", FaceAnimationIDs.FRIENDLY_2))
+			.addContinueDialog(ben.createDialogStepForNpc("Hopefully you'll leave me alone now. </br>Good bye picks axes.", FaceAnimationIDs.WORRIED_SAD)).setStateProgression(retrievedBlackThrownaxe.getSetter());
+		ben.addDialogTree(retrievedBlackLump, BenDialog2);
+
+
+
+		RuneliteDialogStep BenDialog3 = ben.createDialogStepForNpc("Am I going to need some sort of restraining order?", FaceAnimationIDs.FRIENDLY);
+		BenDialog3.addContinueDialog(new RunelitePlayerDialogStep(client, "Sorry to be a pain Ben, but I can't bring myself to use this axe. It's too precious.", FaceAnimationIDs.WORRIED_SAD))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "Is there some way we could preserve it?", FaceAnimationIDs.QUIZZICAL))
+			.addContinueDialog(ben.createDialogStepForNpc("Yeah, I think we can do something for you.", FaceAnimationIDs.YES))
+			.addContinueDialog(ben.createDialogStepForNpc("On the wall behind you we store our best axes, our finest pieces of work.", FaceAnimationIDs.NORMAL))
+
+
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "Ben, this is perfect. Thank you so much.", FaceAnimationIDs.FRIENDLY_2))
+			.addContinueDialog(ben.createDialogStepForNpc("Hopefully you'll leave me alone now. </br>Good bye picks axes.", FaceAnimationIDs.WORRIED_SAD)).setStateProgression(retrievedBlackThrownaxe.getSetter());
+		ben.addDialogTree(retrievedBlackThrownaxe, BenDialog3);
+
+
+
+
+
+
+
+
 
 		RuneliteConfigSetter endQuest = new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "4");
 		RuneliteDialogStep benGiveMetalLumpDialog = ben.createDialogStepForNpc("Have you got the cabbage?");
@@ -181,7 +246,7 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 			.addContinueDialog(ben.createDialogStepForNpc("Nice! Now let's sort out this crasher..."))
 			.addContinueDialog(ben.createDialogStepForNpc("Oi noob, take this!"))
 			.addContinueDialog(new RuneliteObjectDialogStep("Hatius Cosaintus", "What on earth?", NpcID.HATIUS_COSAINTUS).setStateProgression(endQuest));
-		ben.addDialogTree(pickedBlackLump, benGiveMetalLumpDialog);
+		//ben.addDialogTree(pickedBlackLump, benGiveMetalLumpDialog);
 
 	}
 
@@ -205,10 +270,10 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 		thurgo.addExamineAction(runeliteObjectManager);
 
 		// Dialog
-		RuneliteDialogStep hopleezDialogPreQuest = thurgo.createDialogStepForNpc("Hop noob.");
-		hopleezDialogPreQuest.addContinueDialog(new RunelitePlayerDialogStep(client, "What? Also, what are you wearing?"))
+		RuneliteDialogStep thurgoDialogPreQuest = thurgo.createDialogStepForNpc("Hop noob.");
+		thurgoDialogPreQuest.addContinueDialog(new RunelitePlayerDialogStep(client, "What? Also, what are you wearing?"))
 			.addContinueDialog(thurgo.createDialogStepForNpc("Hop NOOB."));
-		thurgo.addDialogTree(null, hopleezDialogPreQuest);
+		thurgo.addDialogTree(null, thurgoDialogPreQuest);
 
 		RuneliteDialogStep thurgoDialog1 = thurgo.createDialogStepForNpc("Oh hello again picks axes, I hope I did a good job with that Faladian knight's sword.", FaceAnimationIDs.FRIENDLY);
 		thurgoDialog1.addContinueDialog(new RunelitePlayerDialogStep(client, "Thurgo! What are you doing here?", FaceAnimationIDs.CHATTY))
@@ -225,48 +290,92 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 			.addContinueDialog(thurgo.createDialogStepForNpc("I like metal almost as much as pie!", FaceAnimationIDs.SHORT_LAUGH))
 			.addContinueDialog(thurgo.createDialogStepForNpc("White and Black metals are actually just coloured forms of steel, created by differing forging techniques.", FaceAnimationIDs.FRIENDLY))
 			.addContinueDialog(thurgo.createDialogStepForNpc("If you'd like, I could give you some raw Black metal that your weapons smith can work with.", FaceAnimationIDs.FRIENDLY_QUESTIONING))
-			.addContinueDialog(new RunelitePlayerDialogStep(client, "Wow, that would be great! I'll have to stop by your place and drop off some pie as a thank you.", FaceAnimationIDs.LAUGHING))
-			.addContinueDialog(thurgo.createDialogStepForNpc("Well I'd never say no that fantastic offer!", FaceAnimationIDs.BIG_LAUGH))
-			.addContinueDialog(new RuneliteDialogStep("", "Thurgo leaves a lump of Black metal slag outside the nearby furnace.", -1, -1))
-			.addContinueDialog(new RunelitePlayerDialogStep(client, "Thanks Thurgo, you've really saved this episode of Picks Axes, the hit Youtube series from Skeldoor.", talkedToThurgo.getSetter()))
-			.addContinueDialog(thurgo.createDialogStepForNpc("Wait what?", FaceAnimationIDs.ANNOYED));
-
-
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "Thurgo, that would be fantastic!", FaceAnimationIDs.LAUGHING))
+			.addContinueDialog(thurgo.createDialogStepForNpc("Of course I'd need something to sweeten the deal.", FaceAnimationIDs.BIG_LAUGH))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "There it is. Would a redberry pie suffice?", FaceAnimationIDs.SHORT_LAUGH))
+			.addContinueDialog(thurgo.createDialogStepForNpc("Ah, redberry pie: I like pie almost as much as metal!", FaceAnimationIDs.BIG_LAUGH))
+			.addContinueDialog(thurgo.createDialogStepForNpc("Sometimes I wish I had my own infinite supply of redberries.", FaceAnimationIDs.SHORT_LAUGH))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "I could help with that.", FaceAnimationIDs.FRIENDLY))
+			.addContinueDialog(thurgo.createDialogStepForNpc("Oh yeah, how are you going to help? Redberries don't grow on trees you know.", FaceAnimationIDs.SHORT_LAUGH))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "Well funnily enough, they kinda do. I could plant a redberry bush in your garden if you'd like.", FaceAnimationIDs.FRIENDLY))
+			.addContinueDialog(thurgo.createDialogStepForNpc("picks axes mate, I'd love that! In return, I'll prepare some raw Black metal for your axe.", FaceAnimationIDs.QUIZZICAL))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "I'll be be back soon Thurgo.", talkedToThurgo.getSetter()));
 		thurgo.addDialogTree(talkedToBen, thurgoDialog1);
 
 
-		RuneliteDialogStep thurgoThankfulDialog = thurgo.createDialogStepForNpc("I hope I was useful mate, I'm always happy to help out a fellow smith.");
-		thurgo.addDialogTree(talkedToThurgo, thurgoThankfulDialog);
 
-		RuneliteConfigSetter endQuest = new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "4");
-		RuneliteDialogStep hopleezGiveCabbageDialog = thurgo.createDialogStepForNpc("Have you got the cabbage?");
-		hopleezGiveCabbageDialog
-			.addContinueDialog(new RunelitePlayerDialogStep(client, "I have! Here you go, why do you need it?"))
-			.addContinueDialog(thurgo.createDialogStepForNpc("Nice! Now let's sort out this crasher..."))
-			.addContinueDialog(thurgo.createDialogStepForNpc("Oi noob, take this!"))
-			.addContinueDialog(new RuneliteObjectDialogStep("Hatius Cosaintus", "What on earth?", NpcID.HATIUS_COSAINTUS).setStateProgression(endQuest));
-		thurgo.addDialogTree(pickedBlackLump, hopleezGiveCabbageDialog);
+		RuneliteDialogStep thurgoDialog2 = thurgo.createDialogStepForNpc("picks axes, how goes that redberry business?", FaceAnimationIDs.FRIENDLY_QUESTIONING);
+		thurgoDialog2.addContinueDialog(new RunelitePlayerDialogStep(client, "You'll be happy to know that your redberry bush is ready and waiting for you at home.", FaceAnimationIDs.CHATTY))
+			.addContinueDialog(thurgo.createDialogStepForNpc("Mate, you've warmed my steel heart. I'll get that Black metal ready for you.", FaceAnimationIDs.FRIENDLY))
+			.addContinueDialog(new RuneliteDialogStep("", "Thurgo leaves a lump of Black metal slag outside the nearby furnace.", -1, -1))
+			.addContinueDialog(new RunelitePlayerDialogStep(client, "Thanks Thurgo, you've really saved this episode of Picks Axes, the hit Youtube series from Skeldoor.", talkedToThurgo2.getSetter()))
+			.addContinueDialog(thurgo.createDialogStepForNpc("Wait what?", FaceAnimationIDs.ANNOYED));
+		thurgo.addDialogTree(plantedRedberryBush, thurgoDialog2);
+
+
+
+//		RuneliteConfigSetter endQuest = new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "4");
+//		RuneliteDialogStep hopleezGiveCabbageDialog = thurgo.createDialogStepForNpc("Have you got the cabbage?");
+//		hopleezGiveCabbageDialog
+//			.addContinueDialog(new RunelitePlayerDialogStep(client, "I have! Here you go, why do you need it?"))
+//			.addContinueDialog(thurgo.createDialogStepForNpc("Nice! Now let's sort out this crasher..."))
+//			.addContinueDialog(thurgo.createDialogStepForNpc("Oi noob, take this!"))
+//			.addContinueDialog(new RuneliteObjectDialogStep("Hatius Cosaintus", "What on earth?", NpcID.HATIUS_COSAINTUS).setStateProgression(endQuest));
+		//thurgo.addDialogTree(pickedBlackLump, hopleezGiveCabbageDialog);
+	}
+
+
+	private void setupRedberryPatch()
+	{
+		redberryBushPatch = runeliteObjectManager.createFakeObject(this.toString(), new int[]{1076}, new WorldPoint(2999, 3141, 0), -1);
+		redberryBushPatch.setName("Bush patch");
+		redberryBushPatch.setExamine("This earth is particularly fertile.");
+		redberryBushPatch.addExamineAction(runeliteObjectManager);
+		redberryBushPatch.setDisplayRequirement(talkedToThurgo);
+		redberryBushPatch.addAction("Plant", new Consumer<MenuEntry>()
+		{
+			@Override
+			public void accept(MenuEntry menuEntry)
+			{
+				new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "3").setConfigValue();
+				client.getLocalPlayer().setAnimation(830);
+				client.getLocalPlayer().setAnimationFrame(0);
+			}
+		});
 	}
 
 	private void setupRedberryBush()
 	{
-		// 23628
-		//redberryBush = runeliteObjectManager.createFakeItem(this.toString(), new int[]{ 7826,7813 }, new WorldPoint(2998, 3144, 0), -1);
-		redberryBush = runeliteObjectManager.createFakeObject(this.toString(), new int[]{ 7826,7813}, new WorldPoint(2998, 3144, 0), -1);
-			//blacklump.setScaledModel(new int[]{7826,7813}, 150,20,150);
+		redberryBush = runeliteObjectManager.createFakeObject(this.toString(), new int[]{ 7826,7767,7815}, new WorldPoint(2999, 3141, 0), -1);
 		redberryBush.setName("Redberry bush");
 		redberryBush.setExamine("Thurgo's redberry bush is full of tasty berries.");
 		redberryBush.addExamineAction(runeliteObjectManager);
 		redberryBush.setDisplayRequirement(displayRedberryBush);
-		//redberryBush.addTakeAction(runeliteObjectManager, new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "3"), "You pick up the black metal lump.");
-		//redberryBush.setObjectToRemove(new ReplacedObject(NullObjectID.NULL_37348, new WorldPoint(3231, 3235, 0)));
+		redberryBush.getRuneliteObject().setRadius(100);
+	}
+
+	private void setupCabbage()
+	{
+		// Old cabbage
+		blackLump = runeliteObjectManager.createFakeItem(this.toString(), new int[]{ 48958 }, new WorldPoint(3227, 3255, 0), -1);
+		blackLump.setScaledModel(new int[]{48958}, 150,20,150);
+		blackLump.setName("Black lump");
+		blackLump.setExamine("A heavy lump of raw Black metal.");
+		blackLump.addExamineAction(runeliteObjectManager);
+		blackLump.setDisplayRequirement(displayBlackLump);
+		blackLump.addTakeAction(runeliteObjectManager, new RuneliteConfigSetter(configManager, getQuest().getPlayerQuests().getConfigValue(), "5"),
+			"You pick up the lump of black metal.");
+
+		blackLump.setObjectToRemove(new ReplacedObject(NullObjectID.NULL_37348, new WorldPoint(3227, 3255, 0)));
 	}
 
 	private void createRuneliteObjects()
 	{
 		setupBobsBrother();
 		setupThurgo();
+		setupRedberryPatch();
 		setupRedberryBush();
+		setupCabbage();
 	}
 
 	@Override
@@ -289,7 +398,7 @@ public class TheBlackAxe extends PlayerMadeQuestHelper
 	public List<PanelDetails> getPanels()
 	{
 		List<PanelDetails> allSteps = new ArrayList<>();
-		PanelDetails helpingTheCousinSteps = new PanelDetails("Getting a black thrownaxeaxe", Arrays.asList(talkToBen, talkToThurgo, grabBlackOre, returnToBen));
+		PanelDetails helpingTheCousinSteps = new PanelDetails("Getting a black thrownaxeaxe", Arrays.asList(talkToBen, talkToThurgo, grabBlackOre));
 		allSteps.add(helpingTheCousinSteps);
 
 		return allSteps;

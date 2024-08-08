@@ -649,7 +649,7 @@ public enum QuestHelperQuest
 	MINING(new Mining(), "Mining", Skill.MINING, 99, QuestDetails.Type.SKILL_F2P, QuestDetails.Difficulty.SKILL),
 
 	// Player Quests
-	THE_BLACK_AXE(new TheBlackAxe(), "The Black Axe", PlayerQuests.THE_BLACK_AXE, 4, false),
+	THE_BLACK_AXE(new TheBlackAxe(), "The Black Axe", PlayerQuests.THE_BLACK_AXE, 8, false),
 	COOKS_HELPER(new CooksHelper(), "Cook's Helper", PlayerQuests.COOKS_HELPER, 4, false),
 	BIKE_SHEDDER(new BikeShedder(), "Bike Shedder", PlayerQuests.BIKE_SHEDDER, 4, true);
 

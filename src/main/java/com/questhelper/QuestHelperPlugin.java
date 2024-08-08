@@ -36,8 +36,11 @@ import com.questhelper.managers.QuestMenuHandler;
 import com.questhelper.managers.QuestOverlayManager;
 import com.questhelper.panel.QuestHelperPanel;
 import com.questhelper.questhelpers.QuestHelper;
+import com.questhelper.questinfo.PlayerQuests;
 import com.questhelper.questinfo.QuestHelperQuest;
 import com.questhelper.requirements.item.ItemRequirement;
+import com.questhelper.requirements.runelite.PlayerQuestStateRequirement;
+import com.questhelper.requirements.util.Operation;
 import com.questhelper.runeliteobjects.Cheerer;
 import com.questhelper.runeliteobjects.GlobalFakeObjects;
 import com.questhelper.statemanagement.PlayerStateManager;
@@ -58,6 +61,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.SwingUtilities;
@@ -66,19 +70,27 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.api.GameObject;
 import net.runelite.api.GameState;
 import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
 import net.runelite.api.MenuEntry;
+import net.runelite.api.Model;
+import net.runelite.api.ModelData;
+import net.runelite.api.NpcID;
+import net.runelite.api.Renderable;
+import net.runelite.api.Scene;
 import net.runelite.api.ScriptID;
+import net.runelite.api.Tile;
 import net.runelite.api.VarPlayer;
 import net.runelite.api.WorldType;
 import net.runelite.api.events.BeforeMenuRender;
 import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.CommandExecuted;
+import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
@@ -272,6 +284,63 @@ public class QuestHelperPlugin extends Plugin
 	{
 		questBankManager.loadInitialStateFromConfig(client);
 		questManager.updateQuestState();
+
+		ModelData modelData = client.loadModelData(7815);
+		if (modelData != null){
+			//print out the short array modelData.getFaceColors() as a string
+			modelData.recolor((short) 6364, (short) 65343);
+			modelData.recolor((short) 5314, (short) 65343);
+		}
+
+		clientThread.invokeAtTickEnd(() ->
+		{
+			Scene scene = client.getScene();
+			Tile[][][] tiles = scene.getTiles();
+			// Search every tile for an object with the ID 837
+			for (Tile[][] tile : tiles)
+			{
+				for (Tile[] tile1 : tile)
+				{
+					for (Tile tile2 : tile1)
+					{
+						if (tile2 != null)
+						{
+							GameObject[] gameObjects = tile2.getGameObjects();
+							if (gameObjects != null)
+							{
+								for (GameObject gameObject : gameObjects)
+								{
+									if (gameObject != null && gameObject.getId() == 837)
+									{
+										if (gameObject.getWorldLocation().getX() == 3205 && gameObject.getWorldLocation().getY() == 3222) continue;
+										axecab = gameObject;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (axecab != null)
+			{
+				//print the axecab world location in a nice format
+				log.debug("Axecab is at: " + axecab.getWorldLocation().toString());
+
+
+				Renderable renderable = axecab.getRenderable();
+				Model model = verifyModel(renderable);
+				if (model == null)
+				{
+					log.debug("recolorGameObject returned null!");
+					return;
+				}
+				applyColor(model);
+				model.setSceneId(0);
+			} else {
+				log.debug("axecab is null!");
+			}
+		});
 	}
 
 	@Subscribe
@@ -314,6 +383,49 @@ public class QuestHelperPlugin extends Plugin
 				questManager.setupRequirements();
 				questManager.setupOnLogin();
 			});
+		}
+
+		if(event.getGameState() == GameState.LOGGED_IN)
+		{
+			clientThread.invokeAtTickEnd(() ->
+			{
+				if (axecab != null)
+				{
+					//Renderable renderable = axecab.getRenderable();
+					//Model model = verifyModel(renderable);
+					//if (model == null)
+					//{
+					//	log.debug("recolorGameObject returned null!");
+					//	return;
+					//}
+					int[] f1;
+					int[] f2;
+					int[] f3;
+					f1 = new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+					f2 = new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+					f3 = new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+					//applyColor(model, f1, f2, f3);
+					//model.setSceneId(0);
+				}
+			});
+		}
+	}
+
+	private Model verifyModel(Renderable renderable)
+	{
+		if (renderable instanceof Model)
+		{
+			return (Model) renderable;
+		}
+		else
+		{
+			Model model = renderable.getModel();
+			if (model == null)
+			{
+				log.debug("verifyModel returned null!");
+				return null;
+			}
+			return model;
 		}
 	}
 
@@ -487,15 +599,66 @@ public class QuestHelperPlugin extends Plugin
 		questMenuHandler.setupQuestMenuOptions(menuEntries, widgetIndex, widgetID, target, option);
 	}
 
+	GameObject axecab = null;
+
+	@Subscribe
+	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned){
+		GameObject gameObject = gameObjectSpawned.getGameObject();
+		if (gameObject.getId() == 837){
+			axecab = gameObject;
+		}
+	}
+
+
 	@Subscribe
 	public void onBeforeRender(BeforeRender beforeRender)
 	{
 		try {
-			client.getWidget(9764864).getDynamicChildren()[0].setModelZoom(400);
-			client.getWidget(9764864).getDynamicChildren()[0].setItemId(ItemID.BLACK_BATTLEAXE);
-			client.getWidget(9764864).getDynamicChildren()[0].setName("<col=FF9040>Black thrownaxe");
+			if (Objects.equals(new RuneliteConfigSetter(configManager, QuestHelperQuest.THE_BLACK_AXE.getPlayerQuests().getConfigValue(), "blah").getConfigValue(), "7")){
+				client.getWidget(9764864).getDynamicChildren()[0].setModelZoom(400);
+				client.getWidget(9764864).getDynamicChildren()[0].setItemId(ItemID.BLACK_BATTLEAXE);
+				client.getWidget(9764864).getDynamicChildren()[0].setItemQuantity(1);
+				client.getWidget(9764864).getDynamicChildren()[0].setItemQuantityMode(1);
+				client.getWidget(9764864).getDynamicChildren()[0].setName("<col=FF9040>Black thrownaxe");
+			} else if (Objects.equals(new RuneliteConfigSetter(configManager, QuestHelperQuest.THE_BLACK_AXE.getPlayerQuests().getConfigValue(), "blah").getConfigValue(), "5")){
+				client.getWidget(9764864).getDynamicChildren()[0].setModelZoom(400);
+				client.getWidget(9764864).getDynamicChildren()[0].setItemId(ItemID.CHARCOAL);
+				client.getWidget(9764864).getDynamicChildren()[0].setName("<col=FF9040>Black lump");
+				client.getWidget(9764864).getDynamicChildren()[0].setItemQuantityMode(0);
+			} else {
+				client.getWidget(9764864).getDynamicChildren()[0].setItemId(-1);
+				client.getWidget(9764864).getDynamicChildren()[0].setName("");
+			}
 		} catch (Exception ignored) {
 		}
+
+		try {
+			if (Objects.equals(new RuneliteConfigSetter(configManager, QuestHelperQuest.THE_BLACK_AXE.getPlayerQuests().getConfigValue(), "blah").getConfigValue(), "7")){
+
+				//Model model = client.loadModel(1160);
+
+				int[] f1;
+				int[] f2;
+				int[] f3;
+				f1 = new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+				f2 = new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+				f3 = new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+				//applyColor(model, f1, f2, f3);
+
+				short[] shortstofind = new short[1];
+				shortstofind[0] = 61;
+				short[] shortstoreplace = new short[1];
+				shortstoreplace[0] = 7;
+				client.loadModel(1160, shortstofind, shortstoreplace);
+
+
+			}
+		} catch (Exception ignored){
+		}
+
+
+
+
 
 		try {
 			if (client.getWidget(10616869).getDynamicChildren()[3].getText().contains("Thurgo leaves a lump of Black metal slag outside the nearby furnace.")){
@@ -505,9 +668,90 @@ public class QuestHelperPlugin extends Plugin
 		} catch (Exception ignored) {
 		}
 
+		try {
+			if (client.getWidget(10616869).getDynamicChildren()[3].getText().contains("You hand the lump of black metal to Ben.")){
+				client.getWidget(10616869).getDynamicChildren()[3].setRelativeX(72);
+				client.getWidget(10616869).getDynamicChildren()[2].setRelativeX(72);
+			}
+		} catch (Exception ignored) {
+		}
+
+		try {
+			if (client.getWidget(10616869).getDynamicChildren()[3].getText().contains("Ben stomps away muttering")){
+				client.getWidget(10616869).getDynamicChildren()[3].setRelativeX(72);
+				client.getWidget(10616869).getDynamicChildren()[2].setRelativeX(72);
+			}
+		} catch (Exception ignored) {
+		}
+
+		try {
+			if (client.getWidget(10616869).getDynamicChildren()[3].getText().contains("and returns, carrying a Black thrownaxe")){
+				client.getWidget(10616869).getDynamicChildren()[3].setRelativeX(72);
+				client.getWidget(10616869).getDynamicChildren()[2].setRelativeX(72);
+			}
+		} catch (Exception ignored) {
+		}
+
+	}
+
+	//Searches an array of shorts for a value and replaces all instances of that value with another
+	public void replaceIntValue(int[] array, int find, int replace)
+	{
+		for (int i = 0; i < array.length; i++)
+		{
+			if (array[i] < find)
+			{
+				array[i] = replace;
+			}
+		}
+	}
+
+
+	// applies the colors to a model
+	public void applyColor(Model model)
+	{
+
+		int[] faceColors = model.getFaceColors1();
+		int[] faceColors2 = model.getFaceColors2();
+		int[] faceColors3 = model.getFaceColors3();
+
+		//Create a new faceColors array with the same length as the original and copy it
+		int[] newFaceColors = new int[faceColors.length];
+		newFaceColors = new int[]{7945, 7945, 7945, 7945, 7942, 7942, 7942, 7949, 7949, 7949, 7949, 5767, 5767, 5767, 5767, 5763, 5763, 5769, 5769, 58, 58, 58, 58, 39, 30, 30, 30, 30, 30, 30, 30, 35, 4, 4, 8, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 36, 53, 54, 2, 2, 22, 7047, 7047, 7047, 7047, 7047, 7044, 7044, 7044, 7057, 7057, 7057, 7059, 7059, 7059, 7059, 7059, 7059, 7056, 7056, 7046, 7046, 7059, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7053, 7053, 7053, 7053, 7053, 7045, 7045, 7045, 7057, 7057, 7057, 7067, 7067, 7067, 7067, 7067, 7055, 7064, 7064, 7046, 7046, 7055, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 20, 30, 30, 46, 46, 46, 40, 40, 40, 40, 28, 29, 29, 29, 29, 29, 29, 29, 13, 59, 59, 36, 7057, 7057, 7057, 7057, 7057, 7057, 7051, 7051, 7048, 7048, 7048, 7060, 7060, 7060, 7060, 7044, 7044, 7044, 7056, 7067, 7066, 7066, 21, 21, 21, 21, 21, 21, 14, 14, 14, 15, 15, 42, 42, 42, 42, 20, 17, 17, 27, 42, 42, 42, 48, 48, 20, 20, 9, 9, 24, 24, 43, 43, 55, 35, 23, 23, 23, 7, 8834, 8834, 3, 3, 8834, 8834, 5762, 5762, 5762, 5762, 5762, 5762, 5762, 5762, 5762, 5762, 5762, 5771, 7951, 8834, 8834, 8834, 8834, 5762, 5765, 5763, 5763, 5763, 5763, 5763, 5762, 5762, 8836, 8836, 8836, 5762, 5762, 5762, 5762, 5764, 5764, 5762, 5763, 5762, 8834, 8834, 3, 3, 8834, 8834, 8834, 5764, 5764, 5764, 5762};
+
+		int[] newFaceColors2 = new int[faceColors2.length];
+		newFaceColors2 = new int[]{7945, 7945, 7945, 7941, 7941, 7938, 7946, 7946, 7951, 7948, 7945, 5763, 5763, 5763, 5763, 5763, 5762, 5765, 5763, 39, 30, 58, 35, 35, 35, 21, 4, 8, 26, 30, 40, 58, 40, 30, 30, 36, 53, 54, 30, 30, 22, 2, 2, 19, 30, 30, 30, 30, 30, 30, 30, 7050, 7046, 7044, 7057, 7059, 7059, 7059, 7054, 7054, 7067, 7067, 7067, 7067, 7059, 7056, 7050, 7056, 7056, 7046, 7056, 7059, 7067, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7059, 7046, 7045, 7057, 7067, 7067, 7055, 7045, 7045, 7060, 7067, 7067, 7060, 7055, 7064, 7059, 7057, 7057, 7046, 7057, 7055, 7060, 20, 30, 30, 54, 46, 30, 19, 23, 2, 2, 2, 2, 2, 54, 23, 19, 28, 29, 38, 13, 13, 13, 7, 20, 36, 39, 59, 59, 38, 59, 36, 59, 7051, 7048, 7056, 7067, 7067, 7066, 7066, 7060, 7060, 7044, 7056, 7056, 7067, 7059, 7054, 7054, 7059, 7054, 7054, 7054, 7067, 7067, 14, 35, 31, 20, 27, 17, 17, 15, 15, 17, 28, 20, 43, 57, 27, 31, 27, 44, 57, 55, 35, 23, 23, 30, 30, 7, 7, 11, 11, 15, 15, 34, 34, 34, 34, 15, 7, 15, 8838, 8838, 3, 3, 8834, 8836, 5762, 5762, 5762, 5762, 5762, 5767, 5767, 5762, 5762, 5762, 5765, 5765, 7948, 8836, 8834, 8834, 8834, 5762, 5762, 5762, 5762, 5762, 5762, 5762, 5762, 5763, 8839, 8834, 8834, 5762, 5762, 5762, 5762, 5762, 5767, 5767, 5767, 5767, 8839, 8838, 3, 3, 8834, 8834, 8834, 5762, 5762, 5767, 5762};
+
+		int[] newFaceColors3 = new int[faceColors3.length];
+		newFaceColors3 = new int[]{7945, 7945, 7941, 7942, 7938, 7946, 7949, 7951, 7948, 7945, 7945, 5763, 5767, 5763, 5763, 5762, 5762, 5763, 5767, 30, 58, 35, 39, 30, 21, 4, 8, 26, 30, 40, 58, 21, 30, 8, 26, 53, 54, 30, 30, 22, 2, 2, 19, 30, 36, 53, 54, 19, 30, 2, 2, 7046, 7044, 7057, 7059, 7044, 7059, 7054, 7057, 7067, 7067, 7059, 7067, 7059, 7056, 7050, 7047, 7056, 7046, 7050, 7059, 7044, 7054, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7046, 7045, 7057, 7067, 7045, 7055, 7045, 7057, 7060, 7067, 7067, 7060, 7055, 7064, 7059, 7053, 7064, 7046, 7059, 7055, 7045, 7045, 30, 30, 54, 46, 30, 19, 23, 2, 2, 20, 30, 30, 2, 23, 19, 30, 29, 38, 13, 28, 29, 7, 20, 36, 39, 59, 59, 38, 7, 36, 20, 39, 7048, 7056, 7067, 7067, 7066, 7051, 7060, 7048, 7044, 7056, 7060, 7067, 7059, 7054, 7044, 7059, 7054, 7056, 7067, 7059, 7067, 7060, 35, 31, 20, 27, 17, 14, 15, 15, 35, 28, 15, 43, 57, 27, 20, 43, 44, 28, 44, 35, 23, 48, 30, 20, 7, 9, 11, 24, 15, 43, 34, 55, 35, 23, 15, 7, 30, 11, 8838, 8834, 3, 3, 8836, 8838, 5762, 5762, 5762, 5762, 5767, 5762, 5762, 5762, 5762, 5765, 5771, 5769, 7951, 8834, 8834, 8834, 8838, 5765, 5763, 5762, 5763, 5762, 5763, 5762, 5763, 5762, 8834, 8834, 8834, 5762, 5762, 5762, 5764, 5767, 5762, 5763, 5762, 5762, 8838, 8834, 3, 3, 8834, 8834, 8838, 5762, 5767, 5762, 5762};
 
 
 
+//		//Create a new faceColors array with the same length as the original and copy it
+//		int[] newFaceColors = new int[faceColors.length];
+//		System.arraycopy(faceColors, 0, newFaceColors, 0, faceColors.length);
+//		replaceIntValue(newFaceColors, 100, 0);
+//
+//		int[] newFaceColors2 = new int[faceColors2.length];
+//		System.arraycopy(faceColors2, 0, newFaceColors2, 0, faceColors2.length);
+//		replaceIntValue(newFaceColors2, 100, 0);
+//
+//		int[] newFaceColors3 = new int[faceColors3.length];
+//		System.arraycopy(faceColors3, 0, newFaceColors3, 0, faceColors3.length);
+//		replaceIntValue(newFaceColors3, 100, 0);
+
+
+
+		if (newFaceColors.length <= faceColors.length && newFaceColors2.length <= faceColors2.length && newFaceColors3.length <= faceColors3.length)
+		{
+			System.arraycopy(newFaceColors, 0, faceColors, 0, newFaceColors.length);
+			System.arraycopy(newFaceColors2, 0, faceColors2, 0, newFaceColors2.length);
+			System.arraycopy(newFaceColors3, 0, faceColors3, 0, newFaceColors3.length);
+		}
+		else
+		{
+			log.debug("FaceColor has the wrong length.");
+		}
 	}
 
 	@Subscribe

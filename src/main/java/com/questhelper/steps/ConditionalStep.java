@@ -253,7 +253,7 @@ public class ConditionalStep extends QuestStep implements OwnerStep
 
 		for (Requirement conditions : steps.keySet())
 		{
-			boolean stepIsLocked = steps.get(conditions).isLocked();
+			boolean stepIsLocked = false;
 			if (conditions != null && conditions.check(client) && !stepIsLocked)
 			{
 				startUpStep(steps.get(conditions));

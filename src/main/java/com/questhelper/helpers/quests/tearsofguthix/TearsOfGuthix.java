@@ -155,7 +155,7 @@ public class TearsOfGuthix extends BasicQuestHelper
 		talkToJuna = new ObjectStep(this, NullObjectID.NULL_3193, new WorldPoint(3252, 9517, 2),
 			"Talk to Juna.");
 		talkToJuna.addDialogStep("Okay...");
-		useLanternOnLightCreature = new NpcStep(this, NpcID.LIGHT_CREATURE_5783, new WorldPoint(3228, 9518, 2),
+		useLanternOnLightCreature = new NpcStep(this, NpcID.LIGHT_CREATURE, new WorldPoint(3228, 9518, 2),
 			"Go back up the rocks and use the lit sapphire lantern on one of the light creatures nearby.", litSapphireLanternHighlighted);
 		mineRock = new ObjectStep(this, ObjectID.MAGICAL_ROCKS_6670, new WorldPoint(3229, 9497, 2),
 			"Mine one of the rocks.", pickaxe);

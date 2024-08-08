@@ -258,7 +258,7 @@ public class TempleOfIkov extends BasicQuestHelper
 
 	public void setupSteps()
 	{
-		talkToLucien = new NpcStep(this, NpcID.LUCIEN_3444, new WorldPoint(2573, 3321, 0), "Talk to Lucien in the pub north of East Ardougne castle.", emptyInventorySpot);
+		talkToLucien = new NpcStep(this, NpcID.LUCIEN, new WorldPoint(2573, 3321, 0), "Talk to Lucien in the pub north of East Ardougne castle.", emptyInventorySpot);
 		talkToLucien.addDialogSteps("I'm a mighty hero!", "That sounds like a laugh!");
 		prepare = new DetailedQuestStep(this,
 			"Get your weight below 0kg. You can get boots of lightness from the Temple of Ikov north of East Ardougne for -4.5kg.",
