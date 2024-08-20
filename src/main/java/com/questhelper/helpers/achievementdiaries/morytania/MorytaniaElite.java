@@ -215,7 +215,7 @@ public class MorytaniaElite extends ComplexStateQuestHelper
 		cremateShade = new ObjectStep(this, ObjectID.FUNERAL_PYRE, new WorldPoint(3500, 3266, 0),
 			"Place the pyre logs and shade remains on the funeral pyre and light them with a tinderbox", tinderbox,
 			shadeRemains, magicRedwoodPyreLogs);
-		cremateShade.addAlternateObjects(ObjectID.FUNERAL_PYRE_28865, ObjectID.FUNERAL_PYRE_4099);
+		cremateShade.addAlternateObjects(ObjectID.FUNERAL_PYRE_25265, ObjectID.FUNERAL_PYRE_25263);
 
 		bareHandShark = new NpcStep(this, NpcID.FISHING_SPOT_4476, new WorldPoint(3479, 3189, 0),
 			"Bare hand fish a shark in Burgh de Rott.");

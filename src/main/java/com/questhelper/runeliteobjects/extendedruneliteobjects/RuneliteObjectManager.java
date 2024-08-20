@@ -482,14 +482,14 @@ public class RuneliteObjectManager
 		{
 			for (MenuEntryWrapper entry : replacedNpc.getEntries())
 			{
-				client.createMenuEntry(-1)
-					.setOption(entry.getOption())
-					.setType(entry.getType())
-					.setTarget("<col=" + replacedNpc.getNameColor() + ">" + replacedNpc.getName() + "</col>")
-					.setIdentifier(entry.getIdentifier())
-					.setParam0(0)
-					.setParam1(0)
-					.setParent(event.getMenuEntry().getParent());
+//				client.createMenuEntry(-1)
+//					.setOption(entry.getOption())
+//					.setType(entry.getType())
+//					.setTarget("<col=" + replacedNpc.getNameColor() + ">" + replacedNpc.getName() + "</col>")
+//					.setIdentifier(entry.getIdentifier())
+//					.setParam0(0)
+//					.setParam1(0)
+//					.setParent(event.getMenuEntry().getParent());
 			}
 		}
 	}

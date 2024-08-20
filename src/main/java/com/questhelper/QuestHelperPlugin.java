@@ -609,10 +609,52 @@ public class QuestHelperPlugin extends Plugin
 		}
 	}
 
+	//This function will find the alphabetical order for the quest by searching for bone voyage, replacing it with the black axe, and then putting bone voyage into the next available slot, repeating for the entire list
+	// this function doesnt work because the quest list is not in the same order as the quest widget list
+	// the quest list in game is sorted by f2p then p2p in alphabetical order but the quest widget list is sorted by addition to the game
+	private void determineBlackAxePositionAndShuffle(){
+		boolean blackAxePositionDetermined = false;
+		String savedQuestText = "";
+		String savedQuestName = "";
+		for (Widget questWidget : client.getWidget(26148871).getDynamicChildren()){
+
+			if (!blackAxePositionDetermined && !questWidget.getText().contains("Bone Voyage")){
+				continue;
+			}
+			if (!blackAxePositionDetermined && questWidget.getText().contains("Bone Voyage")){
+				questWidget.setText("The Black Axe");
+				questWidget.setName("The Black Axe");
+				blackAxePositionDetermined = true;
+				savedQuestText = questWidget.getText();
+				savedQuestName = questWidget.getName();
+				continue;
+			}
+			if (blackAxePositionDetermined)
+			{
+				String currentQuestText = questWidget.getText();
+				String currentQuestName = questWidget.getName();
+				questWidget.setText(savedQuestText);
+				questWidget.setName(savedQuestName);
+				savedQuestText = currentQuestText;
+				savedQuestName = currentQuestName;
+			}
+			if (questWidget.getText().contains("While Guthix Sleeps")){
+				break;
+			}
+		}
+	}
+
 
 	@Subscribe
 	public void onBeforeRender(BeforeRender beforeRender)
 	{
+
+		if (client.getGameState() != GameState.LOGGED_IN)
+		{
+			//determineBlackAxePositionAndShuffle();
+		}
+
+
 		try {
 			if (Objects.equals(new RuneliteConfigSetter(configManager, QuestHelperQuest.THE_BLACK_AXE.getPlayerQuests().getConfigValue(), "blah").getConfigValue(), "7")){
 				client.getWidget(9764864).getDynamicChildren()[0].setModelZoom(400);
