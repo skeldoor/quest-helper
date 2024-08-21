@@ -609,14 +609,33 @@ public class QuestHelperPlugin extends Plugin
 		}
 	}
 
+	// Sorts the list according to increasing original Y position
+	// This value is between 0 and 3000 so cant be used as the index for a list
+	private Widget[] orderListOnOriginalY(Widget[] list){
+		Arrays.sort(list, (a, b) -> {
+			int aY = a.getOriginalY();
+			int bY = b.getOriginalY();
+			return aY - bY;
+		});
+		return list;
+	}
+
 	//This function will find the alphabetical order for the quest by searching for bone voyage, replacing it with the black axe, and then putting bone voyage into the next available slot, repeating for the entire list
 	// this function doesnt work because the quest list is not in the same order as the quest widget list
 	// the quest list in game is sorted by f2p then p2p in alphabetical order but the quest widget list is sorted by addition to the game
 	private void determineBlackAxePositionAndShuffle(){
+		Widget[] sortedWidgets = orderListOnOriginalY(client.getWidget(26148871).getDynamicChildren());
+
+		//print out all the sorted widgets names in a pretty format all on one line
+		for (Widget questWidget : sortedWidgets){
+			System.out.print(questWidget.getName() + ", ");
+		}
+
 		boolean blackAxePositionDetermined = false;
+		boolean boneVoyagePositionDetermined = false;
 		String savedQuestText = "";
 		String savedQuestName = "";
-		for (Widget questWidget : client.getWidget(26148871).getDynamicChildren()){
+		for (Widget questWidget : sortedWidgets){
 
 			if (!blackAxePositionDetermined && !questWidget.getText().contains("Bone Voyage")){
 				continue;
@@ -627,12 +646,17 @@ public class QuestHelperPlugin extends Plugin
 				blackAxePositionDetermined = true;
 				savedQuestText = questWidget.getText();
 				savedQuestName = questWidget.getName();
-				continue;
 			}
 			if (blackAxePositionDetermined)
-			{
+			{3
 				String currentQuestText = questWidget.getText();
 				String currentQuestName = questWidget.getName();
+				if (!boneVoyagePositionDetermined){
+					boneVoyagePositionDetermined = true;
+					currentQuestText = "bne coyage";
+					currentQuestName = "bne coyage";
+				}
+
 				questWidget.setText(savedQuestText);
 				questWidget.setName(savedQuestName);
 				savedQuestText = currentQuestText;
@@ -649,9 +673,9 @@ public class QuestHelperPlugin extends Plugin
 	public void onBeforeRender(BeforeRender beforeRender)
 	{
 
-		if (client.getGameState() != GameState.LOGGED_IN)
+		if (client.getGameState() == GameState.LOGGED_IN)
 		{
-			//determineBlackAxePositionAndShuffle();
+			determineBlackAxePositionAndShuffle();
 		}
 
 
